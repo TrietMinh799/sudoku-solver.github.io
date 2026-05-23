@@ -8,5 +8,5 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
-  base: '/sudoku-solver.github.io/',
+  base: '/sudoku_solver.github.io/',
 })
