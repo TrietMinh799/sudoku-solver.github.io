@@ -8,5 +8,5 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
-  base: '/wordle_helper.github.io/',
+  base: '/sudoku-solver.github.io/',
 })
