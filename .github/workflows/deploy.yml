@@ -2,12 +2,13 @@ name: Deploy React App
 
 on:
   push:
-    branches: [ main ] # Triggers every time you push to the main branch
+    branches: [ main ]
 
 permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write          # ← needed for artifact deletion
 
 concurrency:
   group: 'pages'
@@ -35,10 +36,30 @@ jobs:
       - name: Build Application
         run: npm run build
 
+      # ↓ ADD THIS STEP
+      - name: Delete stale github-pages artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'github-pages',
+              per_page: 100,
+            });
+            for (const artifact of data.artifacts) {
+              console.log(`Deleting artifact id=${artifact.id}`);
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+              });
+            }
+
       - name: Upload Build Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' 
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
