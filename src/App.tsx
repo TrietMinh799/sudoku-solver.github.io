@@ -26,7 +26,7 @@ function App() {
   };
 
   const solveSudoku = () => {
-    solve(grid);
+    solve(grid, 0, 0);
     setGrid([...grid]);
   };
 
