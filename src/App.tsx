@@ -22,7 +22,7 @@ function App() {
   };
 
   const generate = () => {
-    const newGrid = randomGenerate();
+    const newGrid = randomGenerate(40);
     setGrid(newGrid);
   };
 

@@ -22,52 +22,46 @@ function valid(
   return true;
 }
 
-function findAvailable(arr: number[][], row: number, col: number): number[] {
-  const available: number[] = [];
-  const used: boolean[] = new Array(10).fill(false);
-
-  for (let i = 0; i < 9; ++i) {
-    if (arr[row][i] !== 0) {
-      used[arr[row][i]] = true;
-    }
-    if (arr[i][col] !== 0) {
-      used[arr[i][col]] = true;
-    }
+function shuffle(arr: number[]) {
+  const len = arr.length;
+  for (let i = len - 1; i > 0; --i) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-
-  const startRow = Math.floor(row / 3) * 3;
-  const startCol = Math.floor(col / 3) * 3;
-  for (let i = 0; i < 3; ++i) {
-    for (let j = 0; j < 3; ++j) {
-      if (arr[startRow + i][startCol + j] !== 0) {
-        used[arr[startRow + i][startCol + j]] = true;
-      }
-    }
-  }
-
-  for (let num = 1; num <= 9; ++num) {
-    if (!used[num]) {
-      available.push(num);
-    }
-  }
-  return available || [1, 2, 3, 4, 5, 6, 7, 8, 9];
 }
 
-export function randomGenerate(): number[][] {
-  const arr: number[][] = new Array(9).fill([]).map(() => new Array(9).fill(0));
-  for (let i = 0; i < 9; ++i) {
-    for (let j = 0; j < 9; ++j) {
-      if (Math.random() < 0.4) {
-        const num: number = Math.floor(Math.random() * 9) + 1;
-        if (valid(arr, i, j, num)) {
-          arr[i][j] = num;
-        }
-      }
+function fillBoardRandomly(arr: number[][], row: number, col: number) {
+  if (row == 9) return true;
+  if (col == 9) return fillBoardRandomly(arr, row + 1, 0);
+  if(arr[row][col] != 0) return fillBoardRandomly(arr, row, col + 1);
+
+  const availableNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(num => valid(arr, row, col, num));
+  shuffle(availableNumbers);
+  for (const num of availableNumbers) {
+    arr[row][col] = num;
+    if (fillBoardRandomly(arr, row, col + 1)) {
+      return true;
     }
+    arr[row][col] = 0;
   }
-  return arr;
+  return false;
 }
 
+export function randomGenerate(blankCells: number): number[][] {
+  const board: number[][] = Array.from({length: 9}).map(() => Array(9).fill(0));
+  fillBoardRandomly(board, 0, 0);
+  
+  let removed = 0;
+  while(removed < blankCells) {
+    const row = Math.floor(Math.random() * 9)
+    const col = Math.floor(Math.random() * 9)
+    if(board[row][col] != 0) {
+      board[row][col] = 0;
+      ++removed;
+    }
+  }
+  return board;
+}
 export function solve(arr: number[][], row: number, col: number): boolean {
   if (row === 9) {
     return true;
@@ -77,21 +71,18 @@ export function solve(arr: number[][], row: number, col: number): boolean {
     return solve(arr, row + 1, 0);
   }
 
-  for (let i = row; i < 9; ++i) {
-    for (let j = col; j < 9; ++j) {
-      if (arr[i][j] === 0) {
-        const availableNumbers = findAvailable(arr, i, j);
-        for (const num of availableNumbers) {
-          arr[i][j] = num;
-
-          if (solve(arr, row, col)) {
-            return true;
-          }
-          arr[i][j] = 0;
-        }
-        return false;
-      }
-    }
+  if (arr[row][col] != 0) {
+    return solve(arr, row, col + 1);
   }
-  return true;
+
+  const availableNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9].filter(num => valid(arr, row, col, num));
+  for (const num of availableNumbers) {
+    arr[row][col] = num;
+
+    if (solve(arr, row, col + 1)) {
+      return true;
+    }
+    arr[row][col] = 0;
+  }
+  return false;
 }
