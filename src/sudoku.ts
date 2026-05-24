@@ -10,8 +10,8 @@ function valid(
     }
   }
 
-  let startRow = Math.floor(row / 3) * 3;
-  let startCol = Math.floor(col / 3) * 3;
+  const startRow = Math.floor(row / 3) * 3;
+  const startCol = Math.floor(col / 3) * 3;
   for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 3; ++j) {
       if (arr[startRow + i][startCol + j] === num) {
@@ -22,11 +22,11 @@ function valid(
   return true;
 }
 
-function findAvailable(arr: number[][], row: number, col: number) : number[] {
+function findAvailable(arr: number[][], row: number, col: number): number[] {
   const available: number[] = [];
   const used: boolean[] = new Array(10).fill(false);
 
-  for(let i = 0; i < 9; ++i) {
+  for (let i = 0; i < 9; ++i) {
     if (arr[row][i] !== 0) {
       used[arr[row][i]] = true;
     }
@@ -34,9 +34,9 @@ function findAvailable(arr: number[][], row: number, col: number) : number[] {
       used[arr[i][col]] = true;
     }
   }
-  
-  let startRow = Math.floor(row / 3) * 3;
-  let startCol = Math.floor(col / 3) * 3;
+
+  const startRow = Math.floor(row / 3) * 3;
+  const startCol = Math.floor(col / 3) * 3;
   for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 3; ++j) {
       if (arr[startRow + i][startCol + j] !== 0) {
@@ -68,18 +68,26 @@ export function randomGenerate(): number[][] {
   return arr;
 }
 
-export function solve(arr: number[][]): boolean {
-  for (let i = 0; i < 9; ++i) {
-    for (let j = 0; j < 9; ++j) {
-      if (arr[i][j] === 0) {
-        let availableNumbers = findAvailable(arr, i, j);
-        for (let num of availableNumbers) {
-            arr[i][j] = num;
+export function solve(arr: number[][], row: number, col: number): boolean {
+  if (row === 9) {
+    return true;
+  }
 
-            if (solve(arr)) {
-              return true;
-            }
-            arr[i][j] = 0;
+  if (col === 9) {
+    return solve(arr, row + 1, 0);
+  }
+
+  for (let i = row; i < 9; ++i) {
+    for (let j = col; j < 9; ++j) {
+      if (arr[i][j] === 0) {
+        const availableNumbers = findAvailable(arr, i, j);
+        for (const num of availableNumbers) {
+          arr[i][j] = num;
+
+          if (solve(arr, row, col)) {
+            return true;
+          }
+          arr[i][j] = 0;
         }
         return false;
       }
