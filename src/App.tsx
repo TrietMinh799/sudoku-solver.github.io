@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import "./App.css";
 import { randomGenerate, solve } from "./sudoku";
 
@@ -51,16 +52,22 @@ function App() {
 
               return (
                 <div key={i * GRID_SIZE + j} className={classes.join(" ")}>
-                  <input
-                    type="number"
-                    value={num === 0 ? "" : num}
-                    min={1}
-                    max={9}
-                    disabled={boxs[i][j] !== 0}
-                    onChange={(e) =>
-                      handleOnChange(i, j, parseInt(e.target.value))
-                    }
-                  />
+                  <AnimatePresence initial={false}>
+                    <motion.input
+                      key={num + i * GRID_SIZE + j}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0 }}
+                      type="number"
+                      value={num === 0 ? "" : num}
+                      min={1}
+                      max={9}
+                      disabled={boxs[i][j] !== 0}
+                      onChange={(e) =>
+                        handleOnChange(i, j, parseInt(e.target.value))
+                      }
+                    />
+                  </AnimatePresence>
                 </div>
               );
             });
@@ -68,13 +75,22 @@ function App() {
         </div>
 
         <div className="controls">
-          <button onClick={generate} className="primary">
+          <motion.button
+            onClick={generate}
+            whileTap={{ y: 1 }}
+            className="primary"
+          >
             Generate
-          </button>
-          <button onClick={solveSudoku}>Solve</button>
-          <button onClick={() => setGrid(boxs.map((row) => [...row]))}>
+          </motion.button>
+          <motion.button onClick={solveSudoku} whileTap={{ y: 1 }}>
+            Solve
+          </motion.button>
+          <motion.button
+            onClick={() => setGrid(boxs.map((row) => [...row]))}
+            whileTap={{ y: 1 }}
+          >
             Reset
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>
